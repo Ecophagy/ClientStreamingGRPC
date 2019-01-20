@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+service SampleData {
+
+    rpc SendData (SampleDataMessage) returns (Response) {}
+}
+
+message SampleDataMessage {
+    string stringField = 1;
+    int32 numberField = 2;
+    bytes fileField = 3;
+}
+
+message Response {
+    string message = 1;
+}
