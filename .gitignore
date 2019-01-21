@@ -2,3 +2,5 @@
 *.pb.h
 *.o
 simple_server
+simple_client
+.vscode

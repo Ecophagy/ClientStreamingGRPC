@@ -11,12 +11,13 @@ PROTOS_PATH = protos
 vpath %.proto $(PROTOS_PATH)
 
 
-all: simple_server #simple_client
+all: simple_server simple_client
 
 simple_server: messagedef.pb.o messagedef.grpc.pb.o simple_server.o
 	$(CXX) $^ $(LDFLAGS) -o $@
 
-simple_client: #TODO
+simple_client: messagedef.pb.o messagedef.grpc.pb.o simple_client.o
+	$(CXX) $^ $(LDFLAGS) -o $@
 
 %.grpc.pb.cc: %.proto
 	protoc -I $(PROTOS_PATH) --grpc_out=. --plugin=protoc-gen-grpc=`which grpc_cpp_plugin` $<
@@ -25,5 +26,5 @@ simple_client: #TODO
 	protoc -I $(PROTOS_PATH) --cpp_out=. $<
 
 clean:
-	rm -f *.o *.pb.cc *.pb.h simple_server #simple_client
+	rm -f *.o *.pb.cc *.pb.h simple_server simple_client
 	
