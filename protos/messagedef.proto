@@ -1,5 +1,7 @@
 syntax = "proto3";
 
+package messagedef;
+
 service SampleData {
 
     rpc SendData (SampleDataMessage) returns (Response) {}
