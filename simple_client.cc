@@ -1,4 +1,8 @@
 #include <memory>
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <string>
 
 #include <grpc/grpc.h>
 #include <grpcpp/client_context.h>
@@ -44,14 +48,22 @@ class SimpleClient {
 
 int main(int argc, char** argv)
 {
-    SimpleClient client(grpc::CreateChannel("localhost:50051", grpc::InsecureChannelCredentials()));
+    if (argc != 4)
+    {
+        std::cerr << "Please provide a string, integer, and file path" << std::endl;
+        return 1;
+    } 
 
     SampleDataMessage message;
-    message.set_stringfield("test");
-    message.set_numberfield(6);
-    message.set_filefield("bytestring");
+    message.set_stringfield(argv[1]);
+    message.set_numberfield(std::stoi(argv[2]));
+    std::ifstream file(argv[3]); //TODO; read binary
+    std::stringstream buffer;
+    buffer << file.rdbuf();
+    message.set_filefield(buffer.str());
     Response response;
 
+    SimpleClient client(grpc::CreateChannel("localhost:50051", grpc::InsecureChannelCredentials()));
     client.SendData(message, &response);
 
     return 0;
