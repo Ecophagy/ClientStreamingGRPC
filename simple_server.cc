@@ -12,6 +12,7 @@
 using grpc::Server;
 using grpc::ServerBuilder;
 using grpc::ServerContext;
+using grpc::ServerReader;
 using grpc::Status;
 using messagedef::SampleDataMessage;
 using messagedef::Response;
@@ -20,8 +21,13 @@ using messagedef::SampleData;
 
 class SimpleServerImpl final : public SampleData::Service {
 
-    Status SendData(ServerContext* context, const SampleDataMessage* message, Response* response) override
+    Status SendData(ServerContext* context, ServerReader<SampleDataMessage>* reader, Response* response) override
     {
+        SampleDataMessage message;
+        while (reader->Read(&message))
+        {
+            //TODO: assemble
+        }
         response->set_message("test");
         return Status::OK;
     }

@@ -13,6 +13,7 @@
 
 using grpc::Channel;
 using grpc::ClientContext;
+using grpc::ClientWriter;
 using grpc::Status;
 using messagedef::SampleData;
 using messagedef::SampleDataMessage;
@@ -25,21 +26,41 @@ class SimpleClient {
     public:
         SimpleClient(std::shared_ptr<Channel> channel) : stub_(SampleData::NewStub(channel)) {}
 
-        bool SendData(const SampleDataMessage& message, Response* response)
+        bool SendData(std::string stringField, int numberField, std::string filePath)
         {
+            Response response;
             ClientContext context;
-            Status status = stub_->SendData(&context, message, response);
+            std::unique_ptr<ClientWriter<SampleDataMessage>> writer(stub_->SendData(&context, &response));
+
+            SampleDataMessage message;
+            message.set_stringfield(stringField);
+            message.set_numberfield(numberField);
+
+            //TODO: Chunk message - in loop: write file chunk into buffer, send it with writer
+            std::ifstream file(filePath); //TODO; read binary
+            std::stringstream buffer;
+            buffer << file.rdbuf();
+            message.set_filefieldchunk(buffer.str());
+            
+            if(!writer->Write(message))
+            {
+                //Broken stream
+                //break;
+            }
+            writer->WritesDone();
+            Status status = writer->Finish();
+
             if (!status.ok()){
                 std::cout << "SendData rpc failed" << std::endl;
                 return false;
             }
-            if (response->message().empty())
+            if (response.message().empty())
             {
                 std::cout << "No message in response" << std::endl;
             }
             else 
             {
-                std::cout << "message received: " << response->message() << std::endl;
+                std::cout << "message received: " << response.message() << std::endl;
                 return true;
             }
         }
@@ -54,17 +75,8 @@ int main(int argc, char** argv)
         return 1;
     } 
 
-    SampleDataMessage message;
-    message.set_stringfield(argv[1]);
-    message.set_numberfield(std::stoi(argv[2]));
-    std::ifstream file(argv[3]); //TODO; read binary
-    std::stringstream buffer;
-    buffer << file.rdbuf();
-    message.set_filefield(buffer.str());
-    Response response;
-
     SimpleClient client(grpc::CreateChannel("localhost:50051", grpc::InsecureChannelCredentials()));
-    client.SendData(message, &response);
+    client.SendData(argv[1], std::stoi(argv[2]), argv[3]);
 
     return 0;
 }

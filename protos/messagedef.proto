@@ -4,13 +4,13 @@ package messagedef;
 
 service SampleData {
 
-    rpc SendData (SampleDataMessage) returns (Response) {}
+    rpc SendData (stream SampleDataMessage) returns (Response) {}
 }
 
 message SampleDataMessage {
     string stringField = 1;
     int32 numberField = 2;
-    bytes fileField = 3;
+    bytes fileFieldChunk = 3;
 }
 
 message Response {
