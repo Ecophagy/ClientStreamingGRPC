@@ -16,10 +16,10 @@ using grpc::ServerReader;
 using grpc::Status;
 using messagedef::SampleDataMessage;
 using messagedef::Response;
-using messagedef::SampleData;
+using messagedef::SendSampleData;
 
 
-class SimpleServerImpl final : public SampleData::Service {
+class SimpleServerImpl final : public SendSampleData::Service {
 
     Status SendData(ServerContext* context, ServerReader<SampleDataMessage>* reader, Response* response) override
     {

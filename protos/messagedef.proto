@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package messagedef;
 
-service SampleData {
+service SendSampleData {
 
     rpc SendData (stream SampleDataMessage) returns (Response) {}
 }

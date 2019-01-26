@@ -17,16 +17,16 @@ using grpc::Channel;
 using grpc::ClientContext;
 using grpc::ClientWriter;
 using grpc::Status;
-using messagedef::SampleData;
+using messagedef::SendSampleData;
 using messagedef::SampleDataMessage;
 using messagedef::Response;
 
 class SimpleClient {
     private:
-        std::unique_ptr<SampleData::Stub> stub_;
+        std::unique_ptr<SendSampleData::Stub> stub_;
 
     public:
-        SimpleClient(std::shared_ptr<Channel> channel) : stub_(SampleData::NewStub(channel)) {}
+        SimpleClient(std::shared_ptr<Channel> channel) : stub_(SendSampleData::NewStub(channel)) {}
 
         bool SendData(std::string stringField, int numberField, std::string filePath)
         {
