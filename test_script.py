@@ -1,6 +1,7 @@
 import subprocess
 import os
 import math
+import sys
 
 TEST_FILE_NAME = "test.txt"
 CHUNK_SIZE = 64*1024
@@ -22,7 +23,8 @@ def test_small_file():
     # Check the client received the expected response
     expected_chunks = math.ceil((file_size)/CHUNK_SIZE)
     for line in client.stdout:
-        assert line == "message received: " + str(expected_chunks)
+        text = line.decode(sys.stdout.encoding)
+        assert text == "message received: " + str(expected_chunks)
 
     # Stop the server process
     server.kill()
@@ -48,10 +50,33 @@ def test_large_file():
     # Check the client received the expected response
     expected_chunks = math.ceil((file_size)/CHUNK_SIZE)
     for line in client.stdout:
-        assert line == "message received: " + str(expected_chunks)
+        text = line.decode(sys.stdout.encoding)
+        assert text == "message received: " + str(expected_chunks)
 
     # Stop the server process
     server.kill()
 
     # Delete the test file
     os.remove(TEST_FILE_NAME)
+
+# Test sending the wrong number of parameters
+def test_wrong_params(): 
+        # Start the client process with message parameters
+    client = subprocess.Popen(["./simple_client"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+    # Check the client received the error response
+    for line in client.stderr:
+        text = line.decode(sys.stdout.encoding)
+        assert text == "Please provide a string, integer, and file path\n"
+
+# Test sending thean invalid integer parameter
+def test_invalid_integer_params(): 
+    test_integer = "invalid"
+
+    # Start the client process with message parameters
+    client = subprocess.Popen(["./simple_client", "aaa", test_integer, "filepath"], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+
+    # Check the client received the error response
+    for line in client.stderr:
+        text = line.decode(sys.stdout.encoding)
+        assert text == "integer parameter \'" + test_integer + "\' is not a valid integer\n"

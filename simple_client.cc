@@ -79,6 +79,7 @@ class SimpleClient {
 
 int main(int argc, char** argv)
 {
+    // Check argument numbers are correct
     if (argc != 4)
     {
         std::cerr << "Please provide a string, integer, and file path" << std::endl;
@@ -86,7 +87,15 @@ int main(int argc, char** argv)
     } 
 
     SimpleClient client(grpc::CreateChannel("localhost:50051", grpc::InsecureChannelCredentials()));
-    client.SendData(argv[1], std::stoi(argv[2]), argv[3]);
+    try 
+    {
+        client.SendData(argv[1], std::stoi(argv[2]), argv[3]);
+    }
+    catch (const std::invalid_argument& e)
+    {
+        std::cerr << "integer parameter \'" << argv[2] << "\' is not a valid integer" << std::endl;
+        return 1;
+    }
 
     return 0;
 }
