@@ -35,7 +35,7 @@ def test_small_file():
 # Test sending a large file
 def test_large_file():
     # Write a large test file
-    file_size = 10**9 #1 GB
+    file_size = 2 * 10**9 #2 GB
     file = open(TEST_FILE_NAME, "w")
     for i in range(10):
         file.write(''.join('a' for j in range(file_size//10)))

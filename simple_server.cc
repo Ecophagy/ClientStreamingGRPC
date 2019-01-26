@@ -25,9 +25,9 @@ class SimpleServerImpl final : public SendSampleData::Service {
     {
         SampleDataMessage message;
         int chunks = 0;
+        // Count the number of chunks received
         while (reader->Read(&message))
         {
-            //TODO: assemble
             chunks++;
         }
         response->set_message(std::to_string(chunks));
@@ -39,12 +39,16 @@ class SimpleServerImpl final : public SendSampleData::Service {
 void RunServer() 
 {
     std::string server_address("localhost:50051");
-    SimpleServerImpl service;
 
     ServerBuilder builder;
+
     builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
+
+    SimpleServerImpl service;
     builder.RegisterService(&service);
+
     std::unique_ptr<Server> server(builder.BuildAndStart());
+
     std::cout << "Server listening on " << server_address << std::endl;
     server->Wait();
 }

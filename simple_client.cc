@@ -24,6 +24,7 @@ using messagedef::Response;
 class SimpleClient {
     private:
         std::unique_ptr<SendSampleData::Stub> stub_;
+        const int chunkSize = 64 * 1024; // 64 KiB
 
     public:
         SimpleClient(std::shared_ptr<Channel> channel) : stub_(SendSampleData::NewStub(channel)) {}
@@ -36,7 +37,6 @@ class SimpleClient {
 
             std::ifstream file(filePath, std::ios::binary);
             std::vector<char> buffer(std::istreambuf_iterator<char>(file), {});
-            int chunkSize = 64 * 1024; // 64 KiB
             int numberOfChunks = std::ceil((float)buffer.size()/(float)chunkSize);
 
             for(int i=0; i < numberOfChunks; i++)
@@ -86,7 +86,10 @@ int main(int argc, char** argv)
         return 1;
     } 
 
+    // Create client channel
     SimpleClient client(grpc::CreateChannel("localhost:50051", grpc::InsecureChannelCredentials()));
+
+    // Call rpc
     try 
     {
         client.SendData(argv[1], std::stoi(argv[2]), argv[3]);
