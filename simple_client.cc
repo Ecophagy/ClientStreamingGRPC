@@ -3,6 +3,8 @@
 #include <fstream>
 #include <sstream>
 #include <string>
+#include <vector>
+#include <math.h>
 
 #include <grpc/grpc.h>
 #include <grpcpp/client_context.h>
@@ -32,20 +34,28 @@ class SimpleClient {
             ClientContext context;
             std::unique_ptr<ClientWriter<SampleDataMessage>> writer(stub_->SendData(&context, &response));
 
-            SampleDataMessage message;
-            message.set_stringfield(stringField);
-            message.set_numberfield(numberField);
+            std::ifstream file(filePath, std::ios::binary);
+            std::vector<char> buffer(std::istreambuf_iterator<char>(file), {});
+            int chunkSize = 64 * 1024; // 64 KiB
+            int numberOfChunks = std::ceil((float)buffer.size()/(float)chunkSize);
 
-            //TODO: Chunk message - in loop: write file chunk into buffer, send it with writer
-            std::ifstream file(filePath); //TODO; read binary
-            std::stringstream buffer;
-            buffer << file.rdbuf();
-            message.set_filefieldchunk(buffer.str());
-            
-            if(!writer->Write(message))
+            for(int i=0; i < numberOfChunks; i++)
             {
-                //Broken stream
-                //break;
+                SampleDataMessage message;
+                message.set_stringfield(stringField);
+                message.set_numberfield(numberField);
+
+                auto sliceStart = buffer.begin() + i*chunkSize;
+                auto sliceEnd = i==numberOfChunks ? buffer.end() : buffer.begin() + (i+1)*chunkSize;
+
+                std::vector<char> slice(sliceStart, sliceEnd);
+                message.set_filefieldchunk(std::string(slice.begin(), slice.end()));
+                
+                if(!writer->Write(message))
+                {
+                    //Broken stream
+                    break;
+                }
             }
             writer->WritesDone();
             Status status = writer->Finish();

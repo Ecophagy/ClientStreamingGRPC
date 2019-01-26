@@ -24,11 +24,13 @@ class SimpleServerImpl final : public SampleData::Service {
     Status SendData(ServerContext* context, ServerReader<SampleDataMessage>* reader, Response* response) override
     {
         SampleDataMessage message;
+        int chunks = 0;
         while (reader->Read(&message))
         {
             //TODO: assemble
+            chunks++;
         }
-        response->set_message("test");
+        response->set_message(std::to_string(chunks));
         return Status::OK;
     }
 
