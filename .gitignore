@@ -6,3 +6,4 @@ simple_client
 .vscode
 test.txt
 big.txt
+__pycache__
