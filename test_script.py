@@ -3,8 +3,8 @@ import os
 import math
 import sys
 
-TEST_FILE_NAME = "test.txt"
-CHUNK_SIZE = 64*1024
+TEST_FILE_NAME = "test.txt" # Location of file to write test data to and send from client
+CHUNK_SIZE = 64*1024 # Recommended maximum size of message
 
 # Test sending a small file
 def test_small_file():
@@ -35,7 +35,7 @@ def test_small_file():
 # Test sending a large file
 def test_large_file():
     # Write a large test file
-    file_size = 2 * 10**9 #2 GB
+    file_size = 2*10**9 #2 GB
     file = open(TEST_FILE_NAME, "w")
     for i in range(10):
         file.write(''.join('a' for j in range(file_size//10)))

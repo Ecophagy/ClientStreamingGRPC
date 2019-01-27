@@ -17,30 +17,34 @@ using messagedef::SampleDataMessage;
 using messagedef::Response;
 using messagedef::SendSampleData;
 
-
+/**
+ *  Implentation of the SendSampleData servive defined in messagedef.proto
+ */
 class SimpleServerImpl final : public SendSampleData::Service {
 
     Status SendData(ServerContext* context, ServerReader<SampleDataMessage>* reader, Response* response) override
     {
         SampleDataMessage message;
         int chunks = 0;
-        // Count the number of chunks received
+        // Receive a stream of messages
         while (reader->Read(&message))
         {
+            // Each message contains a chunk of the file sent
             chunks++;
         }
+        //Return how many chunks we received
         response->set_message(std::to_string(chunks));
         return Status::OK;
     }
 
 };
 
+// Set up and run the server
 void RunServer() 
 {
     std::string server_address("localhost:50051");
 
     ServerBuilder builder;
-
     builder.AddListeningPort(server_address, grpc::InsecureServerCredentials());
 
     SimpleServerImpl service;

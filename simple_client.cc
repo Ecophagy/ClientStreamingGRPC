@@ -19,6 +19,9 @@ using messagedef::SendSampleData;
 using messagedef::SampleDataMessage;
 using messagedef::Response;
 
+/**
+ *  Simple client that sends messages to the server
+ */
 class SimpleClient {
     private:
         std::unique_ptr<SendSampleData::Stub> stub_;
@@ -31,12 +34,18 @@ class SimpleClient {
         {
             Response response;
             ClientContext context;
+            
+            // Set up the streaming writer
             std::unique_ptr<ClientWriter<SampleDataMessage>> writer(stub_->SendData(&context, &response));
 
+            // Open the file and read it into memory
             std::ifstream file(filePath, std::ios::binary);
             std::vector<char> buffer(std::istreambuf_iterator<char>(file), {});
+
+            // Calculate how many chunks the file will be broken in to
             int numberOfChunks = std::ceil((float)buffer.size()/(float)chunkSize);
 
+            // Send the message to the server with the file broken into chunks
             for(int i=0; i < numberOfChunks; i++)
             {
                 SampleDataMessage message;
@@ -44,20 +53,25 @@ class SimpleClient {
                 message.set_numberfield(numberField);
 
                 auto sliceStart = buffer.begin() + i*chunkSize;
+
+                // If the last piece of the file is smaller than the chunk size, read to the end of the buffer 
                 auto sliceEnd = i==numberOfChunks ? buffer.end() : buffer.begin() + (i+1)*chunkSize;
 
                 std::vector<char> slice(sliceStart, sliceEnd);
                 message.set_filefieldchunk(std::string(slice.begin(), slice.end()));
                 
+                // Send the message
                 if(!writer->Write(message))
                 {
                     //Broken stream
                     break;
                 }
             }
+            // All chunks sent, so tell the server we're done
             writer->WritesDone();
             Status status = writer->Finish();
 
+            // Check response status and return accordingly
             if (!status.ok()){
                 std::cout << "SendData rpc failed" << std::endl;
                 return false;
