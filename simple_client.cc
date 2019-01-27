@@ -73,16 +73,16 @@ class SimpleClient {
 
             // Check response status and return accordingly
             if (!status.ok()){
-                std::cout << "SendData rpc failed" << std::endl;
+                std::cerr << "SendData rpc failed" << std::endl;
                 return false;
             }
-            if (response.message().empty())
+            if (response.chunksreceived() == 0)
             {
-                std::cout << "No message in response" << std::endl;
+                std::cerr << "Server received no chunks" << std::endl;
             }
             else 
             {
-                std::cout << "message received: " << response.message() << std::endl;
+                std::cout << response.chunksreceived() << " chunks received" << std::endl;
                 return true;
             }
         }

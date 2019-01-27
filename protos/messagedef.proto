@@ -14,5 +14,5 @@ message SampleDataMessage {
 }
 
 message Response {
-    string message = 1;
+    int32 chunksReceived = 1;
 }

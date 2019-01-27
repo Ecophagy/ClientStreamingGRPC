@@ -24,7 +24,7 @@ def test_small_file():
     expected_chunks = math.ceil((file_size)/CHUNK_SIZE)
     for line in client.stdout:
         text = line.decode(sys.stdout.encoding)
-        assert text == "message received: " + str(expected_chunks)
+        assert text == str(expected_chunks) + " chunks received"
 
     # Stop the server process
     server.kill()
@@ -51,7 +51,7 @@ def test_large_file():
     expected_chunks = math.ceil((file_size)/CHUNK_SIZE)
     for line in client.stdout:
         text = line.decode(sys.stdout.encoding)
-        assert text == "message received: " + str(expected_chunks)
+        assert text == str(expected_chunks) + " chunks received"
 
     # Stop the server process
     server.kill()

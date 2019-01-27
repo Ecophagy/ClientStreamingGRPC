@@ -33,7 +33,7 @@ class SimpleServerImpl final : public SendSampleData::Service {
             chunks++;
         }
         //Return how many chunks we received
-        response->set_message(std::to_string(chunks));
+        response->set_chunksreceived(chunks);
         return Status::OK;
     }
 
