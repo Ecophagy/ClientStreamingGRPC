@@ -55,7 +55,7 @@ class SimpleClient {
                 auto sliceStart = buffer.begin() + i*chunkSize;
 
                 // If the last piece of the file is smaller than the chunk size, read to the end of the buffer 
-                auto sliceEnd = i==numberOfChunks ? buffer.end() : buffer.begin() + (i+1)*chunkSize;
+                auto sliceEnd = i==numberOfChunks-1 ? buffer.end() : buffer.begin() + (i+1)*chunkSize;
 
                 std::vector<char> slice(sliceStart, sliceEnd);
                 message.set_filefieldchunk(std::string(slice.begin(), slice.end()));
